@@ -1,6 +1,8 @@
 'use strict';
 
-function TurnList() {}
+function TurnList() {
+
+}
 
 TurnList.prototype.reset = function (charactersById) {
   this._charactersById = charactersById;
@@ -12,12 +14,55 @@ TurnList.prototype.reset = function (charactersById) {
 };
 
 TurnList.prototype.next = function () {
+  var obj = {number: 0, party: null, activeCharacterId: null};
+  for(var o in this._charactersById) {
+    if (this._charactersById[o]._isDead === true){
+      this.list.splice(o,1)
+    }
+  }
+
+  this.turnNumber++;
+  obj.number = this.turnNumber;
+  if (this.list.length > 1)
+    this.activeCharacterId = this.list[(this.turnNumber%this.list.length)-1];
+  else 
+    this.activeCharacterId =  this.list[0];
+  obj.activeCharacterId = this.activeCharacterId;
+  obj.party = this._charactersById[obj.activeCharacterId].party;
+  
+  return obj;
+
   // Haz que calcule el siguiente turno y devuelva el resultado
   // según la especificación. Recuerda que debe saltar los personajes
   // muertos.
 };
 
 TurnList.prototype._sortByInitiative = function () {
+  var arr = new Array;
+  var aux = new Array;
+  for(var o in this._charactersById) {
+    aux.push(this._charactersById[o].initiative);
+    arr.push(o);
+  }
+  
+  return arr.sort(function(a,b){
+    var aFirst;
+    aux.sort(function(c,d){
+      if (c < d){
+	aFirst = 1;
+        return -1;
+      }
+      else if (c > d){
+	aFirst = -1
+        return 1;
+      }
+      else{
+        aFirst = 0;
+        return 0;
+      }
+    });
+    return aFirst;
+  });
   // Utiliza la función Array.sort(). ¡No te implementes tu propia
   // función de ordenación!
 };
