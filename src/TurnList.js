@@ -14,7 +14,7 @@ TurnList.prototype.reset = function (charactersById) {
 };
 
 TurnList.prototype.next = function () {
-  var obj = {number: 0, party: null, activeCharacterId: null};
+ /* var obj = {number: 0, party: null, activeCharacterId: null};
   for(var o in this._charactersById) {
     if (this._charactersById[o]._isDead === true){
       this.list.splice(o,1)
@@ -28,10 +28,34 @@ TurnList.prototype.next = function () {
   else 
     this.activeCharacterId =  this.list[0];
   obj.activeCharacterId = this.activeCharacterId;
-  obj.party = this._charactersById[obj.activeCharacterId].party;
+  obj.party = this._charactersById[this.activeCharacterId].party;
   
-  return obj;
+  return obj;*/
 
+  //Arriba nuestro codigo escrito, el que funciona lo escribieron David y Toni para su practica
+  var i = 0;
+  var found = false;
+  var len = this.list.length;
+  this.turnNumber++;
+
+  while(!found){
+    i = i % len;
+
+    var aux = this._charactersById[this.list[i]]._isDead;
+    if (!aux){
+      this.activeCharacterId = this.list[i];
+      found = true;
+    }
+    i++;
+  }
+
+  var turn = {
+    number: this.turnNumber,
+    party: this._charactersById[this.activeCharacterId].party,
+    activeCharacterId: this.activeCharacterId
+  };
+
+  return turn;
   // Haz que calcule el siguiente turno y devuelva el resultado
   // según la especificación. Recuerda que debe saltar los personajes
   // muertos.
