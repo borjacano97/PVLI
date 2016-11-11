@@ -6,12 +6,14 @@ var OptionsStack = require('./OptionsStack');
 var TurnList = require('./TurnList');
 var Effect = require('./items').Effect;
 
+
 var utils = require('./utils');
 var listToMap = utils.listToMap;
 var mapValues = utils.mapValues;
 
 function Battle() {
   EventEmitter.call(this);
+  this.histogram = {};
   this._grimoires = {};
   this._charactersById = {};
   this._turns = new TurnList();
@@ -29,6 +31,7 @@ Object.defineProperty(Battle.prototype, 'turnList', {
 });
 
 Battle.prototype.setup = function (parties) {
+  this.histogram = {};
   this._grimoires = this._extractGrimoiresByParty(parties);
   this._charactersById = this._extractCharactersById(parties);
   this._states = this._resetStates(this._charactersById);
@@ -72,23 +75,39 @@ Battle.prototype._extractGrimoiresByParty = function (parties) {
 Battle.prototype._extractCharactersById = function (parties) {
   var idCounters = {};
   var characters = [];
+  var self = this;
   var partyIds = Object.keys(parties);
   partyIds.forEach(function (partyId) {
     var members = parties[partyId].members;
     assignParty(members, partyId);
     characters = characters.concat(members);
   });
-  return listToMap(characters, useUniqueName);
+  return listToMap(characters, useUniqueName);;
 
   function assignParty(characters, party) {
     // Cambia la party de todos los personajes a la pasada como parámetro.
+    for (var i = 0; i< characters.length; i++){
+      characters[i].party = party;
+    }
+   
   }
 
   function useUniqueName(character) {
+
     // Genera nombres únicos de acuerdo a las reglas
     // de generación de identificadores que encontrarás en
     // la descripción de la práctica o en la especificación.
+    if(!self.histogram.hasOwnProperty(character.name)){
+      self.histogram[character.name] = 0;
+      self.histogram[character.name] ++;
+      return character.name;
+    }
+  else{
+    self.histogram[character.name] ++;
+    return character.name + " " + (self.histogram[character.name]);
   }
+  }
+  
 };
 
 Battle.prototype._resetStates = function (charactersById) {
@@ -132,12 +151,28 @@ Battle.prototype._checkEndOfBattle = function () {
   return commonParty ? { winner: commonParty } : null;
 
   function isAlive(character) {
-    // Devuelve true si el personaje está vivo.
+    return !character.isDead();
   }
 
   function getCommonParty(characters) {
     // Devuelve la party que todos los personajes tienen en común o null en caso
     // de que no haya común.
+    var comun = true;
+    var firstTime = true;
+    var party;
+    for (var pj in characters){
+        if (firstTime){
+          party = pj.party;
+          firstTime = false;
+        } 
+        else {
+          if (pj[party] !== party){
+            comun = false;
+          }
+        }
+    }
+    if (!comun) return null;
+    else return party;
   }
 };
 
@@ -157,6 +192,20 @@ Battle.prototype._onAction = function (action) {
   };
   // Debe llamar al método para la acción correspondiente:
   // defend -> _defend; attack -> _attack; cast -> _cast
+  switch (action){
+    case 'defend':
+      this.emit(this._action, this._defend());
+      break;
+    case 'attack':
+      this.emit(this._action, this._attack());
+      break;
+    case 'cast':
+      this.emit(this._action, this._cast());
+      break;
+    default:
+      console.log('No es una opción');
+  }
+ 
 };
 
 Battle.prototype._defend = function () {
@@ -170,18 +219,26 @@ Battle.prototype._defend = function () {
 Battle.prototype._improveDefense = function (targetId) {
   var states = this._states[targetId];
   // Implementa la mejora de la defensa del personaje.
+ //states = this._charactersById[targetId]._defense;
+ var o = this._charactersById[targetId].defense;
+ o = Math.ceil(o* 1.1);
+ this._charactersById[targetId].defense=o;
+  return (o);
 };
 
 Battle.prototype._restoreDefense = function (targetId) {
   // Restaura la defensa del personaje a cómo estaba antes de mejorarla.
   // Puedes utilizar el atributo this._states[targetId] para llevar tracking
   // de las defensas originales.
+
 };
 
 Battle.prototype._attack = function () {
   var self = this;
+  console.log("dentro");
   self._showTargets(function onTarget(targetId) {
     // Implementa lo que pasa cuando se ha seleccionado el objetivo.
+
     self._executeAction();
     self._restoreDefense(targetId);
   });
@@ -215,6 +272,11 @@ Battle.prototype._informAction = function () {
 Battle.prototype._showTargets = function (onSelection) {
   // Toma ejemplo de la función ._showActions() para mostrar los identificadores
   // de los objetivos.
+   this.options.current = {
+    'Tank': true,
+    'Wizz': true,
+    'Fasty': true
+  };
 
   this.options.current.on('chose', onSelection);
 };

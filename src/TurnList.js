@@ -41,7 +41,7 @@ TurnList.prototype.next = function () {
   while(!found){
     i = i % len;
 
-    var aux = this._charactersById[this.list[i]]._isDead;
+    var aux = this._charactersById[this.list[i]].isDead();
     if (!aux){
       this.activeCharacterId = this.list[i];
       found = true;
@@ -62,30 +62,20 @@ TurnList.prototype.next = function () {
 };
 
 TurnList.prototype._sortByInitiative = function () {
-  var arr = new Array;
-  var aux = new Array;
+  var arr = [];
+  var self = this;
+  var aux = [];
   for(var o in this._charactersById) {
     aux.push(this._charactersById[o].initiative);
     arr.push(o);
   }
-  
   return arr.sort(function(a,b){
-    var aFirst;
-    aux.sort(function(c,d){
-      if (c < d){
-	aFirst = 1;
-        return -1;
-      }
-      else if (c > d){
-	aFirst = -1
-        return 1;
-      }
-      else{
-        aFirst = 0;
-        return 0;
-      }
-    });
-    return aFirst;
+    if(self._charactersById[a].initiative > self._charactersById[b].initiative)
+      return -1;
+    else if (self._charactersById[a].initiative < self._charactersById[b].initiative)
+      return 1;
+    else
+      return 0;
   });
   // Utiliza la función Array.sort(). ¡No te implementes tu propia
   // función de ordenación!
