@@ -33,7 +33,7 @@ TurnList.prototype.next = function () {
   return obj;*/
 
   //Arriba nuestro codigo escrito, el que funciona lo escribieron David y Toni para su practica
-  var i = 0;
+  var i = this.turnNumber;
   var found = false;
   var len = this.list.length;
   this.turnNumber++;

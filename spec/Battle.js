@@ -267,6 +267,7 @@ describe('Battle type', function () {
         var currentDefense = fastEnemy.defense;
         var expectedDefense =
             Math.ceil(Math.ceil(currentDefense * 1.1) * 1.1);
+        var characterIds = Object.keys(battle.characters.all());
 
         battle.on('turn', function (turn) {
           switch (turn.number) {
@@ -278,7 +279,7 @@ describe('Battle type', function () {
             done();
             break;
           default:
-            this.options.select('defend');
+	    this.options.select('defend');
             break;
           }
         });
@@ -288,7 +289,7 @@ describe('Battle type', function () {
 
     });
 
-    xdescribe('Attack action', function () {
+    describe('Attack action', function () {
 
       it('requires to choose a target character.', function (done) {
         battle.on('turn', function () {

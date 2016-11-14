@@ -139,6 +139,7 @@ Battle.prototype._nextTurn = function () {
     } else {
       var turn = this._turns.next();
       this._showActions();
+      
       this.emit('turn', turn);
     }
   }.bind(this), 0);
@@ -219,14 +220,16 @@ Battle.prototype._defend = function () {
 Battle.prototype._improveDefense = function (targetId) {
   var states = this._states[targetId];
   // Implementa la mejora de la defensa del personaje.
- //states = this._charactersById[targetId]._defense;
- var o = this._charactersById[targetId].defense;
- o = Math.ceil(o* 1.1);
- this._charactersById[targetId].defense=o;
+  //states = this._charactersById[targetId]._defense;
+  var o = this._charactersById[targetId].defense;
+  o = Math.ceil(o* 1.1);
+  this._charactersById[targetId].defense=o;
   return (o);
 };
 
 Battle.prototype._restoreDefense = function (targetId) {
+  console.log(this._states[targetId]);
+  //this._charactersById[targetId].defense = this._charactersById[targetId].features.defense;
   // Restaura la defensa del personaje a cómo estaba antes de mejorarla.
   // Puedes utilizar el atributo this._states[targetId] para llevar tracking
   // de las defensas originales.
@@ -235,10 +238,11 @@ Battle.prototype._restoreDefense = function (targetId) {
 
 Battle.prototype._attack = function () {
   var self = this;
-  console.log("dentro");
   self._showTargets(function onTarget(targetId) {
     // Implementa lo que pasa cuando se ha seleccionado el objetivo.
-
+    var activeCharacterId = self._action.activeCharacterId;
+    self._action.targetId = targetId;
+    self._action.effect = self._charactersById[activeCharacterId].weapon.effect;
     self._executeAction();
     self._restoreDefense(targetId);
   });
@@ -272,12 +276,14 @@ Battle.prototype._informAction = function () {
 Battle.prototype._showTargets = function (onSelection) {
   // Toma ejemplo de la función ._showActions() para mostrar los identificadores
   // de los objetivos.
-   this.options.current = {
-    'Tank': true,
-    'Wizz': true,
-    'Fasty': true
-  };
-
+  //this.options.current = Object.assign(this._charactersById);
+  var alive = Object.assign(this._charactersById);
+  for (var o in this._charactersById){
+    if (this._charactersById[o].isDead()){
+      delete(alive[o])
+    }
+  }
+  this.options.current = alive;
   this.options.current.on('chose', onSelection);
 };
 
