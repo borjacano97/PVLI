@@ -82,30 +82,29 @@ Battle.prototype._extractCharactersById = function (parties) {
     assignParty(members, partyId);
     characters = characters.concat(members);
   });
-  return listToMap(characters, useUniqueName);;
+  return listToMap(characters, useUniqueName);
 
   function assignParty(characters, party) {
-    // Cambia la party de todos los personajes a la pasada como par√°metro.
-    for (var i = 0; i< characters.length; i++){
+    // Cambia la party de todos los personajes a la pasada como par·metro.
+    for (var i = 0; i < characters.length; i++) {
       characters[i].party = party;
     }
    
   }
 
   function useUniqueName(character) {
-
-    // Genera nombres √∫nicos de acuerdo a las reglas
-    // de generaci√≥n de identificadores que encontrar√°s en
-    // la descripci√≥n de la pr√°ctica o en la especificaci√≥n.
+    // Genera nombres ˙nicos de acuerdo a las reglas
+    // de generaciÛn de identificadores que encontrar·s en
+    // la descripciÛn de la pr·ctica o en la especificaciÛn.
     if(!self.histogram.hasOwnProperty(character.name)){
-      self.histogram[character.name] = 0;
-      self.histogram[character.name] ++;
-      return character.name;
+        self.histogram[character.name] = 0;
+        self.histogram[character.name] ++;
+        return character.name;
     }
-  else{
-    self.histogram[character.name] ++;
-    return character.name + " " + (self.histogram[character.name]);
-  }
+	else{
+		self.histogram[character.name] ++;
+		return character.name + ' ' + (self.histogram[character.name]);
+	}
   }
   
 };
@@ -139,7 +138,6 @@ Battle.prototype._nextTurn = function () {
     } else {
       var turn = this._turns.next();
       this._showActions();
-      
       this.emit('turn', turn);
     }
   }.bind(this), 0);
@@ -156,24 +154,25 @@ Battle.prototype._checkEndOfBattle = function () {
   }
 
   function getCommonParty(characters) {
-    // Devuelve la party que todos los personajes tienen en com√∫n o null en caso
-    // de que no haya com√∫n.
+    // Devuelve la party que todos los personajes tienen en com˙n o null en caso
+    // de que no haya com˙n.
     var comun = true;
     var firstTime = true;
     var party;
-    for (var pj in characters){
+    for (var i = 0; i < characters.length; i++){
         if (firstTime){
-          party = pj.party;
+          party = characters[i].party;
           firstTime = false;
         } 
         else {
-          if (pj[party] !== party){
+          if (characters[i].party !== party){
             comun = false;
           }
         }
     }
-    if (!comun) return null;
-    else return party;
+    //console.log(party);
+    if (!comun) { return null;  }
+    else { return party }
   }
 };
 
@@ -191,7 +190,7 @@ Battle.prototype._onAction = function (action) {
     action: action,
     activeCharacterId: this._turns.activeCharacterId
   };
-  // Debe llamar al m√©todo para la acci√≥n correspondiente:
+  // Debe llamar al mÈtodo para la acciÛn correspondiente:
   // defend -> _defend; attack -> _attack; cast -> _cast
   switch (action){
     case 'defend':
@@ -203,8 +202,6 @@ Battle.prototype._onAction = function (action) {
     case 'cast':
       this.emit(this._action, this._cast());
       break;
-    default:
-      console.log('No es una opci√≥n');
   }
  
 };
@@ -218,21 +215,21 @@ Battle.prototype._defend = function () {
 };
 
 Battle.prototype._improveDefense = function (targetId) {
-  var states = this._states[targetId];
-  // Implementa la mejora de la defensa del personaje.
-  //states = this._charactersById[targetId]._defense;
-  var o = this._charactersById[targetId].defense;
-  o = Math.ceil(o* 1.1);
-  this._charactersById[targetId].defense=o;
-  return (o);
+  if (!this._states[targetId].defense){
+  this._states[targetId].defense = this._charactersById[targetId].defense;
+  }
+   // Implementa la mejora de la defensa del personaje.
+ var defense = this._charactersById[targetId].defense;
+ defense = Math.ceil(defense * 1.1);
+ this._charactersById[targetId].defense = defense;
+  return (defense);
 };
 
 Battle.prototype._restoreDefense = function (targetId) {
-  console.log(this._states[targetId]);
-  //this._charactersById[targetId].defense = this._charactersById[targetId].features.defense;
-  // Restaura la defensa del personaje a c√≥mo estaba antes de mejorarla.
+  // Restaura la defensa del personaje a cÛmo estaba antes de mejorarla.
   // Puedes utilizar el atributo this._states[targetId] para llevar tracking
   // de las defensas originales.
+  this._charactersById[targetId].defense = this._states[targetId].defense;
 
 };
 
@@ -252,6 +249,16 @@ Battle.prototype._cast = function () {
   var self = this;
   self._showScrolls(function onScroll(scrollId, scroll) {
     // Implementa lo que pasa cuando se ha seleccionado el hechizo.
+    self._showTargets(function onTarget(targetId) {
+    // Implementa lo que pasa cuando se ha seleccionado el objetivo.
+    var activeCharacterId = self._action.activeCharacterId;
+    self._action.targetId = targetId;
+    self._action.scrollName = scrollId;
+    self._action.effect = scroll.effect;
+    self._charactersById[activeCharacterId].mp -= scroll.cost;
+    self._executeAction();
+    self._restoreDefense(targetId);
+  });
   });
 };
 
@@ -274,23 +281,33 @@ Battle.prototype._informAction = function () {
 };
 
 Battle.prototype._showTargets = function (onSelection) {
-  // Toma ejemplo de la funci√≥n ._showActions() para mostrar los identificadores
+  // Toma ejemplo de la funciÛn ._showActions() para mostrar los identificadores
   // de los objetivos.
-  //this.options.current = Object.assign(this._charactersById);
-  var alive = Object.assign(this._charactersById);
-  for (var o in this._charactersById){
-    if (this._charactersById[o].isDead()){
-      delete(alive[o])
-    }
+  var opt = {};
+  for (var id in this._charactersById){
+     if (this._charactersById[id].hp > 0){
+        opt[id] = true;
+     }
   }
-  this.options.current = alive;
+  
+  this.options.current = opt;
   this.options.current.on('chose', onSelection);
 };
 
 Battle.prototype._showScrolls = function (onSelection) {
-  // Toma ejemplo de la funci√≥n anterior para mostrar los hechizos. Estudia
-  // bien qu√© par√°metros se env√≠an a los listener del evento chose.
+  // Toma ejemplo de la funciÛn anterior para mostrar los hechizos. Estudia
+  // bien quÈ par·metros se envÌan a los listener del evento chose.
+  var party = this._charactersById[this._action.activeCharacterId].party;
+  var opt = {};
+
+  for (var id in this._grimoires[party]){
+    if (this._charactersById[this._action.activeCharacterId].mp >= this._grimoires[party][id].cost){
+     opt[id] = this._grimoires[party][id];
+    }
+  }
+  this.options.current = opt;
   this.options.current.on('chose', onSelection);
 };
 
 module.exports = Battle;
+

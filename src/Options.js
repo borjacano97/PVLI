@@ -19,7 +19,6 @@ Options.prototype.get = function (id) {
 
 Options.prototype.select = function (id) {
   var aux = this.get(id);
-  var found = false;
   if (aux != undefined)
     this.emit('chose', id, aux);
   else

@@ -29,7 +29,6 @@ Character.prototype.applyEffect = function (effect, isAlly) {
   // Implementa las reglas de aplicación de efecto para modificar las
   // características del personaje. Recuerda devolver true o false según
   // si el efecto se ha aplicado o no.
-  var self = this;
 
   if (!isAlly){
     var aleat = dice.d100();
@@ -76,7 +75,7 @@ Object.defineProperty(Character.prototype, 'defense', {
     return this._defense;
   },
   set: function (newValue) {
-    this._defense= Math.max(0, Math.min(newValue, 100));
+    this._defense = Math.max(0, Math.min(newValue, 100));
   }
 });
 
