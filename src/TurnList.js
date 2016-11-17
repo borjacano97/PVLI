@@ -39,7 +39,7 @@ TurnList.prototype.next = function () {
   this.turnNumber++;
 
   while(!found){
-    i = i % len;
+    i = (i % len);
 
     var aux = this._charactersById[this.list[i]].isDead();
     if (!aux){

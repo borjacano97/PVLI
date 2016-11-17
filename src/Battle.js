@@ -89,7 +89,6 @@ Battle.prototype._extractCharactersById = function (parties) {
     for (var i = 0; i < characters.length; i++) {
       characters[i].party = party;
     }
-   
   }
 
   function useUniqueName(character) {
@@ -97,14 +96,14 @@ Battle.prototype._extractCharactersById = function (parties) {
     // de generación de identificadores que encontrarás en
     // la descripción de la práctica o en la especificación.
     if(!self.histogram.hasOwnProperty(character.name)){
-        self.histogram[character.name] = 0;
-        self.histogram[character.name] ++;
-        return character.name;
+      self.histogram[character.name] = 0;
+      self.histogram[character.name] ++;
+      return character.name;
     }
-	else{
-		self.histogram[character.name] ++;
-		return character.name + ' ' + (self.histogram[character.name]);
-	}
+    else{
+      self.histogram[character.name] ++;
+      return character.name + ' ' + (self.histogram[character.name]);
+    }
   }
   
 };
@@ -170,7 +169,6 @@ Battle.prototype._checkEndOfBattle = function () {
           }
         }
     }
-    //console.log(party);
     if (!comun) { return null;  }
     else { return party }
   }
@@ -222,7 +220,7 @@ Battle.prototype._improveDefense = function (targetId) {
  var defense = this._charactersById[targetId].defense;
  defense = Math.ceil(defense * 1.1);
  this._charactersById[targetId].defense = defense;
-  return (defense);
+ return (defense);
 };
 
 Battle.prototype._restoreDefense = function (targetId) {
@@ -250,15 +248,15 @@ Battle.prototype._cast = function () {
   self._showScrolls(function onScroll(scrollId, scroll) {
     // Implementa lo que pasa cuando se ha seleccionado el hechizo.
     self._showTargets(function onTarget(targetId) {
-    // Implementa lo que pasa cuando se ha seleccionado el objetivo.
-    var activeCharacterId = self._action.activeCharacterId;
-    self._action.targetId = targetId;
-    self._action.scrollName = scrollId;
-    self._action.effect = scroll.effect;
-    self._charactersById[activeCharacterId].mp -= scroll.cost;
-    self._executeAction();
-    self._restoreDefense(targetId);
-  });
+      // Implementa lo que pasa cuando se ha seleccionado el objetivo.
+      var activeCharacterId = self._action.activeCharacterId;
+      self._action.targetId = targetId;
+      self._action.scrollName = scrollId;
+      self._action.effect = scroll.effect;
+      self._charactersById[activeCharacterId].mp -= scroll.cost;
+      self._executeAction();
+      self._restoreDefense(targetId);
+    });
   });
 };
 
